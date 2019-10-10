@@ -1,197 +1,131 @@
-require "config"
+require "defines"
 
-local m = "__Battle_Wagons__"
-local utd = util.table.deepcopy
+local MODNAME = "__Battle_Wagons__"
+local table_deepcopy = util.table.deepcopy
+local temp01 = "vehicle-laser"
 
-Senpais.Functions.Create.Battle_Wagon = function( n, it, h, w, s, c, g, su, o, st, ig, t )
-	local i =
+local laser_equipment = table_deepcopy( data.raw["active-defense-equipment"]["personal-laser-defense-equipment"] )
+laser_equipment.name = temp01
+laser_equipment.sprite.filename = MODNAME .. "/graphics/" .. temp01 .. ".png"
+laser_equipment.energy_source.buffer_capacity = "750kJ"
+laser_equipment.categories = { "Battle-Laser" }
+laser_equipment.attack_parameters =
+{
+	type = "beam",
+	cooldown = 20,
+	range = 30,
+	damage_modifier = 8,
+	ammo_type =
 	{
-		{ icon = "__base__/graphics/icons/cargo-wagon.png", icon_size = 32 },
-		{ icon = m .. "/graphics/cargo-wagon-mask.png", icon_size = 32, tint = util.color( c ) }
+		category = "laser-turret",
+		energy_consumption = "200kJ",
+		action =
+		{
+			type = "direct",
+			action_delivery =
+			{
+				type = "beam",
+				beam = "laser-beam",
+				max_length = 30,
+				duration = 20,
+				source_offset = { 0, -1.31439 }
+			}
+		}
 	}
-	local we = utd( data.raw["cargo-wagon"]["cargo-wagon"] )
-	we.name = n
-	we.icon = nil
-	we.icons = i
-	we.inventory_size = it
-	we.minable.result = n
-	we.max_health = h
-	we.weight = w
-	we.max_speed = s
+}
 
-	for _, l in pairs( we.pictures.layers ) do
-		if l.apply_runtime_tint == true then
-			for i = 1, 8 do
-				l.filenames[i] = m .. "/graphics/mask-" .. i .. ".png"
-			end
-			for i = 1, 16 do
-				l.hr_version.filenames[i] = m .. "/graphics/hr-mask-" .. i .. ".png"
-			end
-			break
-		end
-	end
+local laser_item = table_deepcopy( data.raw["item"]["personal-laser-defense-equipment"] )
+laser_item.name = temp01
+laser_item.icon = MODNAME .. "/graphics/" .. temp01 .. "-i.png"
+laser_item.placed_as_equipment_result = temp01
+laser_item.order = "d[active-defense]-ab[" .. temp01 .. "]"
 
-	we.horizontal_doors.layers[3].filename = m .. "/graphics/cargo-wagon-door-horizontal-side-mask.png"
-	we.horizontal_doors.layers[3].hr_version.filename = m .. "/graphics/hr-cargo-wagon-door-horizontal-side-mask.png"
-	we.horizontal_doors.layers[5].filename = m .. "/graphics/cargo-wagon-door-horizontal-top-mask.png"
-	we.horizontal_doors.layers[5].hr_version.filename = m .. "/graphics/hr-cargo-wagon-door-horizontal-top-mask.png"
+local laser_recipe = table_deepcopy( data.raw["recipe"]["personal-laser-defense-equipment"] )
+laser_recipe.name = temp01
+laser_recipe.ingredients =
+{
+	{ "personal-laser-defense-equipment", 1 },
+	{ "processing-unit", 10 },
+	{ "steel-plate", 50 },
+	{ "laser-turret", 5 }
+}
+laser_recipe.result = temp01
 
-	we.vertical_doors.layers[3].filename = m .. "/graphics/cargo-wagon-door-vertical-side-mask.png"
-	we.vertical_doors.layers[3].hr_version.filename = m .. "/graphics/hr-cargo-wagon-door-vertical-side-mask.png"
-	we.vertical_doors.layers[5].filename = m .. "/graphics/cargo-wagon-door-vertical-top-mask.png"
-	we.vertical_doors.layers[5].hr_version.filename = m .. "/graphics/hr-cargo-wagon-door-vertical-top-mask.png"
+local laser_technology = table_deepcopy( data.raw["technology"]["personal-laser-defense-equipment"] )
+laser_technology.name = "personal-laser-defense-equipment-2"
+laser_technology.prerequisites = { "personal-laser-defense-equipment" }
+laser_technology.effects = { { type = "unlock-recipe", recipe = temp01 } }
+laser_technology.unit.count = 250
 
-	we.color = util.color( c )
-	we.equipment_grid = g
+data:extend
+{
+	{ type = "equipment-category", name = "Battle-Laser" },
+	laser_equipment, laser_item, laser_recipe, laser_technology,
+}
 
-	local wi = utd( data.raw["item-with-entity-data"]["cargo-wagon"] )
-	wi.name = n
-	wi.icon = nil
-	wi.icons = i
-	wi.subgroup = su
-	wi.order = o
-	wi.place_result = n
-	wi.stack_size = st
+Senpais.Functions.Create.Grid( "Battle-Grid-01", 5, 5, { "Battle-Laser", "armor" } )
+Senpais.Functions.Create.Grid( "Battle-Grid-02", 10, 10, { "Battle-Laser", "armor" } )
+Senpais.Functions.Create.Grid( "Battle-Grid-03", 15, 15, { "Battle-Laser", "armor" } )
 
-	local wr = utd( data.raw["recipe"]["cargo-wagon"] )
-	wr.name = n
-	wr.ingredients = ig
-	wr.result = n
+temp01 = "Battle-Wagon-"
 
-	data:extend{ we, wi, wr }
-
-	table.insert( data.raw["technology"][t].effects, { type = "unlock-recipe", recipe = n } )
-end
-
-Senpais.Functions.Create.Grid = function( n, w, h, c )
-	local g = utd( data.raw["equipment-grid"]["large-equipment-grid"] )
-	g.name = n
-	g.width = w
-	g.height = h
-	g.equipment_categories = c
-
-	data:extend{ g }
-end
-
-if not data.raw["equipment-grid"]["Battle-Grid-01"] then
-	Senpais.Functions.Create.Grid( "Battle-Grid-01", 5, 5, { "Battle-Laser", "armor" } )
-end
-
-if not data.raw["equipment-grid"]["Battle-Grid-02"] then
-	Senpais.Functions.Create.Grid( "Battle-Grid-02", 10, 10, { "Battle-Laser", "armor" } )
-end
-
-if not data.raw["equipment-grid"]["Battle-Grid-03"] then
-	Senpais.Functions.Create.Grid( "Battle-Grid-03", 15, 15, { "Battle-Laser", "armor" } )
-end
+local temp02 = "Battle-Grid-"
+local temp03 = "modular-armor"
 
 Senpais.Functions.Create.Battle_Wagon
 (
-	"Battle-Wagon-1",
+	temp01 .. "1",
 	40,
 	1000,
 	2000,
 	1.2,
 	"#137a9c",
-	"Battle-Grid-01",
+	temp02 .. "01",
 	"transport",
-	"a[train-system]-gaa[cargo-wagon]",
+	"a[train-system]-gaa[" .. temp01 .. "1]",
 	5,
-	{ { "cargo-wagon", 1 }, { "modular-armor", 1 } },
-	"modular-armor"
+	{ { "cargo-wagon", 1 }, { temp03, 1 } },
+	temp03
 )
 
-data.raw["cargo-wagon"]["Battle-Wagon-1"].resistances = utd( data.raw["armor"]["modular-armor"].resistances )
+data.raw["cargo-wagon"][temp01 .. "1"].resistances = table_deepcopy( data.raw["armor"][temp03].resistances )
+
+temp03 = "power-armor"
 
 Senpais.Functions.Create.Battle_Wagon
 (
-	"Battle-Wagon-2",
-	60,
+	temp01 .. "2",
+	50,
 	1500,
-	4000,
-	1.4,
+	2000,
+	1.2,
 	"#1d7f0c",
-	"Battle-Grid-02",
+	temp02 .. "02",
 	"transport",
-	"a[train-system]-gab[cargo-wagon]",
+	"a[train-system]-gab[" .. temp01 .. "2]",
 	5,
-	{ { "cargo-wagon", 1 }, { "power-armor", 1 } },
-	"power-armor"
+	{ { "cargo-wagon", 1 }, { temp03, 1 } },
+	temp03
 )
 
-data.raw["cargo-wagon"]["Battle-Wagon-2"].resistances = utd( data.raw["armor"]["power-armor"].resistances )
+data.raw["cargo-wagon"][temp01 .. "2"].resistances = table_deepcopy( data.raw["armor"][temp03].resistances )
+
+temp03 = "power-armor-mk2"
 
 Senpais.Functions.Create.Battle_Wagon
 (
-	"Battle-Wagon-3",
-	80,
+	temp01 .. "3",
+	60,
 	2000,
-	6000,
-	1.6,
+	2000,
+	1.2,
 	"#9c4296",
-	"Battle-Grid-03",
+	temp02 .. "03",
 	"transport",
-	"a[train-system]-gac[cargo-wagon]",
+	"a[train-system]-gac[" .. temp01 .. "2]",
 	5,
-	{ { "cargo-wagon", 1 }, { "power-armor-mk2", 1 } },
-	"power-armor-mk2"
+	{ { "cargo-wagon", 1 }, { temp03, 1 } },
+	temp03
 )
 
-data.raw["cargo-wagon"]["Battle-Wagon-3"].resistances = utd( data.raw["armor"]["power-armor-mk2"].resistances )
-
-if not data.raw["active-defense-equipment"]["laser-2"] then
-	local le = utd( data.raw["active-defense-equipment"]["personal-laser-defense-equipment"] )
-	le.name = "laser-2"
-	le.sprite.filename = m .. "/graphics/laser-2.png"
-	le.energy_source.buffer_capacity = "750kJ"
-	le.attack_parameters =
-	{
-		type = "beam",
-		cooldown = 20,
-		range = 30,
-		damage_modifier = 8,
-		ammo_type =
-		{
-			category = "laser-turret",
-			energy_consumption = "200kJ",
-			action =
-			{
-				type = "direct",
-				action_delivery =
-				{
-					type = "beam",
-					beam = "laser-beam",
-					max_length = 30,
-					duration = 20,
-					source_offset = { 0, -1.31439 }
-				}	
-			}
-		}
-	}
-	le.categories = { "Battle-Laser" }
-	
-	local li = utd( data.raw["item"]["personal-laser-defense-equipment"] )
-	li.name = "laser-2"
-	li.icon = m .. "/graphics/laser-2-i.png"
-	li.placed_as_equipment_result = "laser-2"
-	li.order = "d[active-defense]-ab[laser-2]"
-	
-	local lr = utd( data.raw["recipe"]["personal-laser-defense-equipment"] )
-	lr.name = "laser-2"
-	lr.ingredients =
-	{
-		{ "personal-laser-defense-equipment", 1 },
-		{ "processing-unit", 10 },
-		{ "steel-plate", 50 },
-		{ "laser-turret", 5 }
-	}
-	lr.result = "laser-2"
-	
-	local lt = utd( data.raw["technology"]["personal-laser-defense-equipment"] )
-	lt.name = "personal-laser-defense-equipment-2"
-	lt.prerequisites = { "personal-laser-defense-equipment" }
-	lt.effects = { { type = "unlock-recipe", recipe = "laser-2" } }
-	lt.unit.count = 250
-	
-	data:extend{ { type = "equipment-category", name = "Battle-Laser" }, le, li, lr, lt }
-end
+data.raw["cargo-wagon"][temp01 .. "3"].resistances = table_deepcopy( data.raw["armor"][temp03].resistances )
