@@ -29,7 +29,7 @@ Senpais.Functions.Create.Battle_Wagon = function( name, inventory_size, max_heal
 	for _, layer in pairs( wagon_entity.pictures.layers ) do
 		if layer.apply_runtime_tint == true then
 			for i = 1, 8 do
-				layer.filenames[i] = MODNAME .. "/graphics/mask" .. i .. ".png"
+				layer.filenames[i] = MODNAME .. "/graphics/mask-" .. i .. ".png"
 			end
 
 			for i = 1, 16 do
