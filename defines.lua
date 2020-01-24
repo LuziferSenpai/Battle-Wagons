@@ -10,13 +10,15 @@ Senpais.Functions.Create = Senpais.Functions.Create or {}
 Senpais.Functions.Create.Battle_Wagon = function( name, inventory_size, max_health, weight, max_speed, color, grid, subgroup, order, stack_size, ingredients, technology )
 	local icons =
 	{
-		{ icon = "__base__/graphics/icons/cargo-wagon.png", icon_size = 32 },
+		{ icon = "__base__/graphics/icons/cargo-wagon.png", icon_size = 64, icon_mipmap = 4 },
 		{ icon = MODNAME .. "/graphics/cargo-wagon-mask.png", icon_size = 32, tint = util.color( color ) }
 	}
 
 	local wagon_entity = table_deepcopy( data.raw["cargo-wagon"]["cargo-wagon"] )
 	wagon_entity.name = name
 	wagon_entity.icon = nil
+	wagon_entity.icon_size = nil
+	wagon_entity.icon_mipmap = nil
 	wagon_entity.icons = icons
 	wagon_entity.inventory_size = inventory_size
 	wagon_entity.minable.result = name
@@ -52,6 +54,8 @@ Senpais.Functions.Create.Battle_Wagon = function( name, inventory_size, max_heal
 	local wagon_item = table_deepcopy( data.raw["item-with-entity-data"]["cargo-wagon"] )
 	wagon_item.name = name
 	wagon_item.icon = nil
+	wagon_item.icon_size = nil
+	wagon_item.icon_mipmap = nil
 	wagon_item.icons = icons
 	wagon_item.subgroup = subgroup
 	wagon_item.order = order
